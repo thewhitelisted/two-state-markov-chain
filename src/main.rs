@@ -1,3 +1,30 @@
+use rand::thread_rng;
+use rand::seq::SliceRandom;
+
+fn draw_ball(jar: &mut Vec<char>) -> char {
+    jar.shuffle(&mut thread_rng());
+    return jar[0];
+}
+
+fn derive_sequence(jar_w: &mut Vec<char>, jar_b: &mut Vec<char>, num_draws: usize) -> Vec<char> {
+    let mut sequence: Vec<char> = Vec::new();
+    // draws start from W
+    sequence.push('W');
+    let mut a = draw_ball(jar_w);
+    sequence.push(a);
+
+    for _ in 1..num_draws {
+        if a == 'W' {
+            a = draw_ball(jar_w);
+        } else {
+            a = draw_ball(jar_b);
+        }
+        sequence.push(a);
+    }
+
+    return sequence;
+}
+
 fn is_jump(prev: char, curr: char) -> Option<(bool, char)> {
     if prev == 'W' && curr == 'B' {
         return Some((true, 'W'));
@@ -36,11 +63,6 @@ fn seq_to_transition_probability(seq: Vec<char>) -> Vec<Vec<f64>> {
         prev = curr;
     }
 
-    println!("{:?}", w_wb);
-    println!("{:?}", draws_from_white);
-    println!("{:?}", b_bw);
-    println!("{:?}", draws_from_black);
-
     let wb: f64 = w_wb / draws_from_white as f64;
     let bw: f64 = b_bw / draws_from_black as f64;
     let ww: f64 = 1.0 - wb;
@@ -53,10 +75,15 @@ fn seq_to_transition_probability(seq: Vec<char>) -> Vec<Vec<f64>> {
 }
 
 fn main() {
-    let seq: Vec<char> = "WBWBWBWBBBBBWWBWB".chars().collect();
-    let result = seq_to_transition_probability(seq);
+    let mut jar_w: Vec<char> = "WWBBBBBBBB".chars().collect();
+    let mut jar_b: Vec<char> = "WWWWWWBBBB".chars().collect();
+    let seq = derive_sequence(&mut jar_w, &mut jar_b, 100);
+    let transition_matrix = seq_to_transition_probability(seq.clone());
 
-    for i in 0..result.len() {
-        println!("{:?}", result[i]);
+    // print transition matrix with 2 decimal places
+    println!("Transition Matrix:");
+    for row in transition_matrix.iter() {
+        println!("{:.2} | {:.2}", row[0], row[1]);
     }
+    println!("Sequence: {:?}", seq);
 }
