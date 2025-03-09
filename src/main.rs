@@ -89,6 +89,7 @@ fn seq_to_transition_probability(seq: Vec<char>) -> Vec<Vec<f64>> {
 }
 
 fn main() {
+    // proportion of white and black balls in the jars
     let mut jar_w: Vec<char> = "WWBBBBBBBB".chars().collect();
     let mut jar_b: Vec<char> = "WWWWWWBBBB".chars().collect();
     let seq = derive_sequence(&mut jar_w, &mut jar_b, 100);
